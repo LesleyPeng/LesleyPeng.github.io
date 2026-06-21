@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-CN" theme="default"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="Lesley PengJialing"><title>Lesley's Blog</title><meta name="description" content="A simple and beautiful blog"><meta name="keywords" content="Blog,博客,Hexo"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta id="site_data_static" data-url="/"><meta name="renderer" content="webkit"><link rel="shortcut icon" type="image/x-icon" href="/images/lesley.png"><link rel="stylesheet" href="/js_complied/bundle.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet"><script src="/js_complied/bundle.js"></script><script>Anatolo.comment.setConfig({"valine":{"enable":false,"appid":null,"appkey":null,"notify":false,"verify":false,"avatar":"mm","placeholder":"hello, world"},"gitment":{"enable":false,"owner":"Your GitHub ID","repo":"Repo to store comments","client_id":"Your client ID","client_secret":"Your client secret"},"gitalk":{"enable":false,"owner":"Your GitHub ID","repo":"Repo to store comments","client_id":"Your client ID","client_secret":"Your client secret"},"duoshuo":null,"disqus":null,"gentie":null})</script><meta name="generator" content="Hexo 7.3.0"></head><body> <main-outlet><div class="page-top animated"><div class="nav"><li><a class="current" href="/">Home</a></li><li><a href="/archives">Archives</a></li><li><a href="/tags">Tags</a></li><li><a href="/about">About</a></li><li><a href="/links">Links</a></li></div><div class="information"><div class="nav_right_btn"><li class="btn-toggle-more"><i class="fa fa-ellipsis"></i></li><li class="btn-search"><a class="fa fa-search" onclick="Anatolo.search.openWindow();"></a></li><li class="btn-toggle-theme"><a class="far fa-sun" onclick="Anatolo.darkLightToggle();"></a></li></div><div class="avatar"><img src="/images/lesley.png"></div></div></div><div class="sidebar animated"><div class="sidebar-top"><div class="logo-title"><div class="title"><img src="/images/lesley.png" style="width:220px;" alt="favicon"><h3 title=""><a href="/">Lesley's Blog</a></h3><div class="description"><p>A simple and beautiful blog</p></div></div><ul class="social-links"><li><a target="_blank" rel="noopener" href="https://github.com/LesleyPeng/"><i class="fab fa-github"></i></a></li><li><a href="mailto:pengjl2024@shanghaitech.edu.cn"><i class="fa fa-envelope"></i></a></li></ul></div></div><div class="footer"><div class="p"><span>全站CC-BY-SA-3.0 </span><i class="fa fa-star"></i><span> Lesley PengJialing</span></div><div class="by_farbox"><span>Powered by</span><a href="https://hexo.io/zh-cn/" target="_blank"> Hexo</a><span> &</span><a href="https://github.com/Lhcfl/hexo-theme-anatolo" target="_blank"> Anatolo</a></div><div class="beian"></div></div></div><div class="main animated fadeInDown"><div class="autopagerize_page_element"><div class="content"><div class="post animated"><div class="post-title"><h3><a href="/2026/06/21/MacOS-%E5%A4%9A%E7%BD%91%E5%8D%A1%E5%88%86%E6%B5%81%E4%B8%8E-%E4%BD%8D%E7%BD%AE-%E9%80%89%E9%A1%B9%E9%85%8D%E7%BD%AE/">MacOS 多网卡分流与'位置'选项配置</a></h3></div><div class="post-content"><div class="card"><p><h1 id="macOS-双网卡分流与多位置无缝切换配置手册"><a href="#macOS-双网卡分流与多位置无缝切换配置手册" class="headerlink" title="macOS 双网卡分流与多位置无缝切换配置手册"></a>macOS 双网卡分流与多位置无缝切换配置手册</h1><p>通过 MacBook 位置选项卡，配置两种场景下的流量分配（内网，外网，国内网站）：</p>
+<ul>
+<li>工位场景</li>
+<li>外出场景</li>
+</ul>
+<hr>
+<h2 id="1-适用场景与配置目标"><a href="#1-适用场景与配置目标" class="headerlink" title="1. 适用场景与配置目标"></a>1. 适用场景与配置目标</h2><ul>
+<li><strong>工位场景：</strong> MacBook 插入网线连接内网（无外网），同时连接 Wi-Fi（有外网并开启代理）。目标是<strong>内网、外网同时畅通</strong>，不需要频繁手动开关代理或修改浏览器设置。</li>
+<li><strong>外出场景：</strong> MacBook 只连接外网 Wi-Fi，通过 VPN（如 Clash 等）访问公司内网。目标是<strong>内网流量顺利走 VPN，外网正常访问</strong>。</li>
+</ul>
+<hr>
+<h2 id="2-环境准备（核心参数记录）"><a href="#2-环境准备（核心参数记录）" class="headerlink" title="2. 环境准备（核心参数记录）"></a>2. 环境准备（核心参数记录）</h2><p>在开始配置前，请确认并记录以下参数（本手册以您当前使用的实际参数为例）：</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数项</th>
+<th align="left">示例</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>有线网网关</strong></td>
+<td align="left"><code>10.156.112.254</code></td>
+<td align="left">通过设置 -&gt; 网络 -&gt; 有线网卡「TCP&#x2F;IP」详情中的“路由器”地址得到</td>
+</tr>
+<tr>
+<td align="left"><strong>内网网段</strong></td>
+<td align="left"><code>10.208.0.0/16</code>, <code>10.156.0.0/16</code></td>
+<td align="left">内网服务器的 IP 范围（其他网段可以按需添加）</td>
+</tr>
+<tr>
+<td align="left"><strong>有线网卡系统服务名称</strong></td>
+<td align="left"><code>&quot;USB 10/100 LAN&quot;</code></td>
+<td align="left">通过终端运行 <code>networksetup -listallnetworkservices</code> 获得</td>
+</tr>
+<tr>
+<td align="left"><strong>外网代理端口</strong></td>
+<td align="left">依据您连接外网的 APP 自行配置（如Clash默认是 <code>7897</code>）</td>
+<td align="left">代理软件所占用的 HTTP&#x2F;HTTPS&#x2F;SOCKS 端口（三者有可能端口号不同）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-配置步骤一：创建并配置“工位”网络位置"><a href="#3-配置步骤一：创建并配置“工位”网络位置" class="headerlink" title="3. 配置步骤一：创建并配置“工位”网络位置"></a>3. 配置步骤一：创建并配置“工位”网络位置</h2><h3 id="步骤-3-1-创建“工位”位置"><a href="#步骤-3-1-创建“工位”位置" class="headerlink" title="步骤 3.1 创建“工位”位置"></a>步骤 3.1 创建“工位”位置</h3><ol>
+<li>打开 Mac 的 <strong>「系统设置」</strong> -&gt; 点击左侧的 <strong>「网络」</strong>。</li>
+<li>点击右侧列表下方（或底部的三个点） -&gt; 选择 <strong>「位置」 (Locations)</strong> -&gt; <strong>「编辑位置…」</strong>。</li>
+<li>点击 <strong>「+」</strong> 按钮，新建一个名为 <strong>「工位」</strong> 的位置，点击 <strong>「完成」</strong>。</li>
+<li>点击左上角  苹果图标 -&gt; <strong>「位置」</strong> -&gt; 切换到 <strong>「工位」</strong>。</li>
+</ol>
+<h3 id="步骤-3-2-调整服务顺序（Wi-Fi-优先）"><a href="#步骤-3-2-调整服务顺序（Wi-Fi-优先）" class="headerlink" title="步骤 3.2 调整服务顺序（Wi-Fi 优先）"></a>步骤 3.2 调整服务顺序（Wi-Fi 优先）</h3><ol>
+<li>在 <strong>「网络」</strong> 设置页面，点击右侧下方的 <strong>「三个点 (更多)」</strong> 按钮。</li>
+<li>选择 <strong>「设置服务顺序…」</strong>。</li>
+<li>将 <strong>「Wi-Fi」 拖动到最顶部</strong>（排在有线网卡之上），点击 <strong>「好」</strong> 。</li>
+</ol>
+<h3 id="步骤-3-3-配置-Wi-Fi-代理与严格忽略名单"><a href="#步骤-3-3-配置-Wi-Fi-代理与严格忽略名单" class="headerlink" title="步骤 3.3 配置 Wi-Fi 代理与严格忽略名单"></a>步骤 3.3 配置 Wi-Fi 代理与严格忽略名单</h3><ol>
+<li>点击 <strong>「Wi-Fi」</strong> -&gt; 点击 <strong>「详细信息…」</strong> -&gt; 切换到 <strong>「代理」</strong> 标签页。</li>
+<li>开启您的 HTTP、HTTPS、SOCKS 代理，填入您代理 APP 的端口。</li>
+<li>滚动到最下方，在 <strong>「忽略这些主机与域的代理设置」</strong> 中，填入内网忽略规则：<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10.208.0.0/16,10.156.0.0/16,*.local,169.254/16</span><br></pre></td></tr></table></figure>
+⚠️ <em>格式要求：必须全部为英文逗号 <code>,</code> 分隔，<strong>中间绝对不能有任何空格</strong>，否则 Safari 可能会忽略整行规则。</em></li>
+<li>点击 <strong>「好」</strong>。</li>
+</ol>
+<h3 id="步骤-3-4-检查有线网卡代理"><a href="#步骤-3-4-检查有线网卡代理" class="headerlink" title="步骤 3.4 检查有线网卡代理"></a>步骤 3.4 检查有线网卡代理</h3><ol>
+<li>点击 <strong>「有线网卡（以太网）」</strong> -&gt; 点击 <strong>「详细信息…」</strong> -&gt; 切换到 <strong>「代理」</strong>。</li>
+<li>确保其所有代理开关处于 <strong>关闭</strong> 状态（或者填入与 Wi-Fi 相同的忽略名单），点击 <strong>「好」</strong>。</li>
+</ol>
+<h3 id="步骤-3-5-写入“工位”永久静态路由"><a href="#步骤-3-5-写入“工位”永久静态路由" class="headerlink" title="步骤 3.5 写入“工位”永久静态路由"></a>步骤 3.5 写入“工位”永久静态路由</h3><p>由于静态路由绑定在当前网络位置下，请确保当前处于「工位」位置，然后打开 <strong>「终端」 (Terminal)</strong> 运行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> networksetup -setadditionalroutes <span class="string">&quot;您的有线网卡名称&quot;</span> 10.208.0.0 255.255.0.0 10.156.112.254 10.156.0.0 255.255.0.0 10.156.112.254</span><br><span class="line"><span class="comment"># sudo 需要输入密码</span></span><br></pre></td></tr></table></figure>
+<p><em>(将 <code>&quot;您的有线网卡名称&quot;</code> 替换为步骤 2 记录的名称，如 <code>&quot;USB 10/100 LAN&quot;</code>)</em></p>
+<hr>
+<h2 id="4-配置步骤二：创建并配置“外出”网络位置"><a href="#4-配置步骤二：创建并配置“外出”网络位置" class="headerlink" title="4. 配置步骤二：创建并配置“外出”网络位置"></a>4. 配置步骤二：创建并配置“外出”网络位置</h2><h3 id="步骤-4-1-创建并切换到“外出”位置"><a href="#步骤-4-1-创建并切换到“外出”位置" class="headerlink" title="步骤 4.1 创建并切换到“外出”位置"></a>步骤 4.1 创建并切换到“外出”位置</h3><ol>
+<li>在网络设置的 <strong>「位置」</strong> 编辑中，点击 <strong>「+」</strong> 新建一个名为 <strong>「外出」</strong> 的位置。</li>
+<li>点击左上角  苹果图标 -&gt; <strong>「位置」</strong> -&gt; 切换到 <strong>「外出」</strong>。</li>
+</ol>
+<h3 id="步骤-4-2-调整服务顺序（Wi-Fi-优先）"><a href="#步骤-4-2-调整服务顺序（Wi-Fi-优先）" class="headerlink" title="步骤 4.2 调整服务顺序（Wi-Fi 优先）"></a>步骤 4.2 调整服务顺序（Wi-Fi 优先）</h3><ul>
+<li>同样在网络设置中，点击右下角 <strong>「三个点 (更多)」</strong> -&gt; <strong>「设置服务顺序…」</strong> -&gt; 确保 <strong>「Wi-Fi」 处于最顶部</strong>。</li>
+</ul>
+<h3 id="步骤-4-3-配置-Wi-Fi-代理（不忽略内网网段）"><a href="#步骤-4-3-配置-Wi-Fi-代理（不忽略内网网段）" class="headerlink" title="步骤 4.3 配置 Wi-Fi 代理（不忽略内网网段）"></a>步骤 4.3 配置 Wi-Fi 代理（不忽略内网网段）</h3><ol>
+<li>点击 <strong>「Wi-Fi」</strong> -&gt; 点击 <strong>「详细信息…」</strong> -&gt; 切换到 <strong>「代理」</strong>。</li>
+<li>开启您的 HTTP、HTTPS、SOCKS 代理，填入外网代理端口。</li>
+<li>滚动到最下方，<strong>保持「忽略这些主机与域的代理设置」为空白</strong>（或者仅保留默认的 <code>*.local,169.254/16</code>，不要写入公司的 <code>10.208...</code> 等网段）。</li>
+<li>点击 <strong>「好」</strong> 保存。</li>
+</ol>
+<hr>
+<h2 id="5-日常使用与切换指南"><a href="#5-日常使用与切换指南" class="headerlink" title="5. 日常使用与切换指南"></a>5. 日常使用与切换指南</h2><p>配置完成后，您在日常使用中只需进行极简的一键切换，无需再进入深层设置：</p>
+<ul>
+<li><strong>当在工位时：</strong><br>点击左上角  -&gt; <strong>「位置」</strong> -&gt; 选择 <strong>「工位」</strong>。<br><em>(此时：Wi-Fi 代理生效且忽略内网，内网流量通过物理静态路由走有线网卡，内外网同时畅通)</em></li>
+<li><strong>当 外出时：</strong><br>点击左上角  -&gt; <strong>「位置」</strong> -&gt; 选择 <strong>「外出」</strong>。<br><em>(此时：无静态路由，代理没有忽略内网限制，内网流量可顺利走您的 VPN 网络)</em></li>
+</ul>
+<hr>
+<h2 id="6-排查与注意事项"><a href="#6-排查与注意事项" class="headerlink" title="6. 排查与注意事项"></a>6. 排查与注意事项</h2><ol>
+<li><strong>iCloud 专用代理冲突：</strong> 如果 Safari 依然打不开网页，请前往「系统设置」-&gt;「Apple 账户」-&gt;「iCloud」-&gt; 确认 <strong>「专用代理」 (Private Relay)</strong> 处于关闭状态。</li>
+<li><strong>Safari “隐藏 IP 地址”：</strong> 请确保在 Safari 的「设置」-&gt;「高级」-&gt;「隐私」中，已关闭 <strong>「隐藏 IP 地址」 (Hide IP address)</strong> 选项。</li>
+<li><strong>空格敏感：</strong> 系统代理设置最下方的忽略名单，如果存在空格（如 <code>*.local, 10.208...</code>），Safari 会因解析格式错误而选择不应用该名单，请务必保证无空格。</li>
+</ol>
+</p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-06-21</span><a class="tag" href="/categories/Dev-Tools-Build-Systems/" title="Dev Tools &amp; Build Systems">Dev Tools &amp; Build Systems </a><i class="fa fa-tag"></i><a class="tag" href="/tags/MacOS/" title="MacOS">MacOS </a><i class="fa fa-tag"></i><a class="tag" href="/tags/NIC/" title="NIC">NIC </a><span>About1.4kwords, NaNminNaNsecread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2026/06/09/DBT6%E6%8E%A5%E5%85%A5BOLT%E8%B0%83%E7%A0%94%E4%B8%8E%E6%96%B9%E6%A1%88/">DBT6接入BOLT调研与方案</a></h3></div><div class="post-content"><div class="card"><p><h1 id="方案一：利用现有的框架接入"><a href="#方案一：利用现有的框架接入" class="headerlink" title="方案一：利用现有的框架接入"></a>方案一：利用现有的框架接入</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><ul>
+<li>以目前已经调研完毕的BOLT 中 SplitFunction这一优化为例，其中又以分割决策CDSplit为例（这是所有分割算法决策中最核心最重要的一个）该算法所需的前期检查和结构如下：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">前期检查与所需准备工作</th>
+<th align="center">DBT6是否已经具备</th>
+<th align="center">使用DBT6构建</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">isSimple&amp;&amp;isIgnored（来自SplitFunctions::runOnFunctions中正式调用的对<a href="#shouldOptimize">shouldOptimize()</a>的调用）</td>
+<td align="center">可以通过自己重写一个<code>runOnFunctions</code>略过（参考）</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<p><a id="shouldOptimize"></a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">SplitFunctions::shouldOptimize</span><span class="params">(<span class="type">const</span> BinaryFunction &amp;BF)</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Apply execution count threshold</span></span><br><span class="line">  <span class="keyword">if</span> (BF.<span class="built_in">getKnownExecutionCount</span>() &lt; opts::ExecutionCountThreshold)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> BinaryFunctionPass::<span class="built_in">shouldOptimize</span>(BF); <span class="comment">// isSimple &amp;&amp; 构建了CFG &amp;&amp; !isIgnored</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">BinaryFunctionPass::shouldOptimize</span><span class="params">(<span class="type">const</span> BinaryFunction &amp;BF)</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> BF.<span class="built_in">isSimple</span>() &amp;&amp; BF.<span class="built_in">getState</span>() == BinaryFunction::State::CFG &amp;&amp;</span><br><span class="line">         !BF.<span class="built_in">isIgnored</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a id="runOnFunctions"></a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sbt/passes.cpp (line 418) 开始构建BinaryFunction（不等价于BOLT中的BF）</span></span><br><span class="line"><span class="comment">// 这一步在正式用决策算法执行重排前的PM.run()中已经做完了</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">SBTSetFuncIDPass::runOnMachineFunction</span><span class="params">(MachineFunction &amp;MF)</span> </span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> func_id = <span class="number">0</span>;</span><br><span class="line">    func_name_to_id[MF.<span class="built_in">getName</span>()] = func_id ++;</span><br><span class="line">    <span class="function">BinaryFunction <span class="title">BF</span><span class="params">(&amp;MF, func_id - <span class="number">1</span>)</span></span>;</span><br><span class="line">    RFs.<span class="built_in">addBinaryFunction</span>(BF, MF.<span class="built_in">getName</span>());</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RFs.runOnFunctions() 在 sbt/reorder_functions.cpp (line 146)</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ReorderFunctions::runOnFunctions</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">traverse</span>(); <span class="comment">// 建 NameToBF，并给每个 BinaryFunction 设置执行次数</span></span><br><span class="line">  <span class="built_in">buildCallGraph</span>();</span><br><span class="line"></span><br><span class="line">  Cg.<span class="built_in">normalizeArcWeights</span>();</span><br><span class="line"></span><br><span class="line">  std::vector&lt;Cluster&gt; Clusters;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// HFSORT</span></span><br><span class="line">  Clusters = <span class="built_in">clusterize</span>(Cg);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">reorder</span>(std::<span class="built_in">move</span>(Clusters), BFs);</span><br><span class="line">  <span class="comment">// now BF.index is the order</span></span><br><span class="line">  llvm::<span class="built_in">stable_sort</span>(BFs,</span><br><span class="line">                    [](<span class="type">const</span> BinaryFunction &amp;A, <span class="type">const</span> BinaryFunction &amp;B) &#123;</span><br><span class="line">                      <span class="keyword">if</span>(A.<span class="built_in">hasValidIndex</span>() &amp;&amp; B.<span class="built_in">hasValidIndex</span>())</span><br><span class="line">                        <span class="keyword">return</span> A.<span class="built_in">getIndex</span>() &lt; B.<span class="built_in">getIndex</span>();</span><br><span class="line">                      <span class="keyword">if</span> (A.<span class="built_in">hasValidIndex</span>() &amp;&amp; !B.<span class="built_in">hasValidIndex</span>())</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                      <span class="keyword">if</span> (!A.<span class="built_in">hasValidIndex</span>() &amp;&amp; B.<span class="built_in">hasValidIndex</span>())</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    &#125;);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// FILE *file = fopen(&quot;function_order.txt&quot;, &quot;w&quot;);</span></span><br><span class="line">  FILE *file = <span class="built_in">fopen</span>(reorder_func_order_file.<span class="built_in">c_str</span>(), <span class="string">&quot;w&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span>(file == <span class="literal">NULL</span>)</span><br><span class="line">      <span class="built_in">assert</span>(<span class="number">0</span> &amp;&amp; <span class="string">&quot;fail opening the file of function order&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">auto</span> &amp; BF : BFs) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(file, <span class="string">&quot;%s\n&quot;</span>, BF.<span class="built_in">getMachineFunction</span>()-&gt;<span class="built_in">getName</span>().<span class="built_in">data</span>());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将 BOLT 的 SplitFucntions 优化接入 dbt6 中，使用 SplitFunctions 中的 CDSplit 策略，也就是在函数重排前进行 SplitProfile2 策略，函数重排后采取 SplitCacheDirected 策略。</p>
+<ul>
+<li>首先，拥有原始的 MachineFunction 信息，你完全不需要 BOLT 那种通过正则表达式解析符号名的方法。利用 BOLT 的核心算法决策（计算不同的分割点的 Score 找到 BestSplitIndex）与 LLVM 后端的冷热 BB的SectionID属性 与修复 MachineBlockPlacement Pass</li>
+<li>前者在执行函数重排前，初始化profile数据后。根据Split决策算法，通过Profile数据直接找出函数中执行次数为 0 的BB，执行<code>MBB.setSectionID(MBBSectionID::ColdSectionID);</code>&#x3D;&#x3D;这里需要实验验证一下如果在dbt6中setSectionID是否会有效地生成.code section，而且被单独拉出来放在了别的位置（证明其具有局部性）&#x3D;&#x3D;</li>
+<li>根据生成的<code>.func_order</code>文件同时可以进行  SplitCacheDirected 策略进行函数切分（由于 LLVM 中没有对 warm section的定义），切分结果的形式怎么保留到下一次执行sbt时，和<code>.func_order</code>文件一起给sbt按照这个顺序进行翻译？还是等到第二次sbt按照<code>.func_order</code>翻译后在这个基础上对函数进行拆分？</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">SBTFile::assemble_and_write_s2d</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ... ...</span></span><br><span class="line">    PM.<span class="built_in">run</span>(*llvm_module); <span class="comment">// 这一步中执行的 SBTSetFuncIDPass 已经构建了 BinaryFunction 和 NameToID</span></span><br><span class="line">    <span class="comment">// usage : -preorder_func_generate</span></span><br><span class="line">    <span class="keyword">if</span>(OPTIONS::<span class="built_in">print_reorder_func_generate</span>()) &#123;</span><br><span class="line">        <span class="built_in">branch_probility_alloc_init</span>(filename);</span><br><span class="line">        <span class="comment">// SplitProfile2</span></span><br><span class="line">        RFs.<span class="built_in">runOnFunctions</span>();</span><br><span class="line">        <span class="comment">// SplitCacheDirected</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">ObjectFile <span class="title">s2dfile</span><span class="params">(output_filename + <span class="string">&quot;.s2d&quot;</span>)</span></span>;</span><br><span class="line">    s2dfile.<span class="built_in">init</span>();</span><br><span class="line">&#125;    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="详细设计"><a href="#详细设计" class="headerlink" title="详细设计"></a>详细设计</h2><h3 id="决策算法引入"><a href="#决策算法引入" class="headerlink" title="决策算法引入"></a>决策算法引入</h3><ul>
+<li>以<code>.func_order</code>作为<code>OldLayout</code>，在目前 dbt6 的<code>BinaryFunction</code>已有属性扩展的基础上计算 Score，主要用到的是<code>Layout</code>和&#96;&#96;</li>
+</ul>
+<h3 id="划分和fixBranch"><a href="#划分和fixBranch" class="headerlink" title="划分和fixBranch"></a>划分和fixBranch</h3><ul>
+<li><p>目前dbt6中用到的LLVM版本中使用的<code>BBSectionType</code>是<code>BasicBlockSection::Labels</code>，使用这一类型的必要性来源于<code>.tbentry</code>文件需要利用调用<code>emitBBAddrMapSection(*MF);</code>函数发射的<code>.llvm_bb_addr_map</code>段的信息。</p>
+<ul>
+<li>但是引入BOLT分割函数的pass到 LLVM 的后端需要将 <code>BBSectionType</code>设置为<code>BasicBlockSection::Preset</code>，也就是需要用到预设自定义BB的顺序函数<code>sortBasicBlocksAndUpdateBranches(MF, Comparator);</code>，以达到后续在<code>AsmPrinter.cpp</code>中<code>AsmPrinter::emitFunctionBody() -&gt; AsmPrinter::emitBasicBlockStart</code>更改BB。如下图：</li>
+<li>![截屏2026-06-14 19.58.22](&#x2F;Users&#x2F;lesleypengjialing&#x2F;Work&#x2F;myblog&#x2F;source&#x2F;_posts&#x2F;DBT6接入BOLT调研与方案&#x2F;截屏2026-06-14 19.58.22.png)</li>
+<li>目前版本的LLVM调用<code>emitBBAddrMapSection(*MF);</code>的条件如下：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// llvm/lib/CodeGen/AsmPrinter/AsmPrinter.cpp</span></span><br><span class="line"></span><br><span class="line"><span class="number">1903</span>      <span class="comment">// Emit section containing BB address offsets and their metadata, when</span></span><br><span class="line"><span class="number">1904</span>      <span class="comment">// BB labels are requested for this function. Skip empty functions.</span></span><br><span class="line"><span class="number">1905</span>      <span class="keyword">if</span> (MF-&gt;<span class="built_in">hasBBLabels</span>() &amp;&amp; HasAnyRealCode)</span><br><span class="line"><span class="number">1906</span>        <span class="built_in">emitBBAddrMapSection</span>(*MF);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>而要使得<code>MF-&gt;hasBBLabels()</code>为<code>true</code>必须要</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// llvm/include/llvm/CodeGen/MachineFunction.h  </span></span><br><span class="line"><span class="comment">// 较新版本的llvm已经将以下接口彻底弃用，emitBBAddrMapSection函数被调用的条件被修改为if (HasAnyRealCode) &#123; if (MF-&gt;getTarget().Options.BBAddrMap)，也就是可以通过 opt 直接控制</span></span><br><span class="line"></span><br><span class="line"><span class="number">690</span>		<span class="comment">/// Returns true if this function has basic block sections enabled.</span></span><br><span class="line">  		<span class="function"><span class="type">bool</span> <span class="title">hasBBSections</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">    		<span class="keyword">return</span> (BBSectionsType == BasicBlockSection::All ||</span><br><span class="line">            		BBSectionsType == BasicBlockSection::List ||</span><br><span class="line">            		BBSectionsType == BasicBlockSection::Preset);</span><br><span class="line">  		&#125;</span><br><span class="line"></span><br><span class="line"><span class="number">697</span>		<span class="comment">/// Returns true if basic block labels are to be generated for this function.</span></span><br><span class="line">  		<span class="function"><span class="type">bool</span> <span class="title">hasBBLabels</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">    		<span class="keyword">return</span> BBSectionsType == BasicBlockSection::Labels;</span><br><span class="line">  		&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在不升级目前dbt6所引用的LLVM版本的前提下，要么修改LLVM源码关于调用 <code>emitBBAddrMapSection()</code>前的 if 触发逻辑，要么需要自己调用<code>sortBasicBlocksAndUpdateBranches</code>（这个函数本身并不复杂）中的接口完成一系列它的工作（前提是它调用的接口中没有<code>MF-&gt;hasBBSections()</code>的检查）</li>
+<li>升级LLVM版本之后可以通过opt来控制（<code>MF-&gt;getTarget().Options.BBAddrMap</code>，这里记录一个兼容两种条件的commitID版本 0f984976897857a8f4003063be6fa38a733fa624）</li>
+</ul>
+</li>
+<li><p>目前的<code>sortBasicBlocksAndUpdateBranches(MF, Comparator);</code>不具备定义最终 ELF section 名，和把所有函数的 cold block 合并进同一个 section的功能；它只能按定义的 comparator 在 <strong>单个 MachineFunction 内部</strong> 重排 MBB。要实现真正的cold和hot布局在ELF文件层面的分开，需要另外的实现：</p>
+<ul>
+<li>目前根据是否为<code>MBBSectionID::ColdSectionID</code>分配 BB 的 SectionName的函数是<code>MCSection *TargetLoweringObjectFileELF::getSectionForMachineBasicBlock</code>，所以可以通过修改LLVM部分源码达到以上目的（但同时需要考虑 fixBranch，同时符号表，BBAddrMap等可能都需要考虑）</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// llvm/lib/CodeGen/TargetLoweringObjectFileImpl.cpp</span></span><br><span class="line"><span class="comment">// Function is in a regular .text section.</span></span><br><span class="line">    StringRef FunctionName = MBB.<span class="built_in">getParent</span>()-&gt;<span class="built_in">getName</span>();</span><br><span class="line">    <span class="keyword">if</span> (MBB.<span class="built_in">getSectionID</span>() == MBBSectionID::ColdSectionID) &#123;</span><br><span class="line">      Name += BBSectionsColdTextPrefix;</span><br><span class="line">      Name += FunctionName;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>dbt6中发射文件最后也是通过 LLVM 的<code>AsmPrinter/ObjectFileLowering</code>，没有直接的通过修改dbt6的MBB中的某个属性就能修改的方法。所以如果不修改LLVM源码，还是只能通过调用BOLT的重写机制来实现这一目的（待详细调研）；另一种方案就是自己实现link这一步，工程量相较于别的会非常大；</li>
+<li>最后一种就是完整的接入LLVM target emission到dbt6后，将其作为dbt6的一部分修改其源码，工程量也会比较大</li>
+</ul>
+</li>
+</ul>
+<h1 id="方案二：考虑完整接入BOLT"><a href="#方案二：考虑完整接入BOLT" class="headerlink" title="方案二：考虑完整接入BOLT"></a>方案二：考虑完整接入BOLT</h1><h2 id="实验验证"><a href="#实验验证" class="headerlink" title="实验验证"></a>实验验证</h2><h3 id="考虑能不能将现有的profile数据直接转换成BOLT能用的-fdate-OR-利用"><a href="#考虑能不能将现有的profile数据直接转换成BOLT能用的-fdate-OR-利用" class="headerlink" title="考虑能不能将现有的profile数据直接转换成BOLT能用的.fdate OR 利用"></a>考虑能不能将现有的profile数据直接转换成BOLT能用的.fdate OR 利用</h3><ul>
+<li><p>目前的插桩数据都是在x86上做的，所以得到的地址也是x86 ELF中的偏移，这里接入BOLT还需要将地址做一次x86 addr -&gt; native addr 转换</p>
+</li>
+<li><img src="/Users/lesleypengjialing/Work/myblog/source/_posts/DBT6接入BOLT调研与方案/image-20260615180705975.png" alt="image-20260615180705975" style="zoom:50%;" />
+
+<ul>
+<li>src函数符号是否被解析标志，src所在的函数名，src函数内offset，dest符号是否被解析标志，dest所在函数名，dest函数内offset  最后两列：分支预测错误计数（from LBR），当前分支&#x2F;跳转执行计数（计数越大分支越热）</li>
+</ul>
+</li>
+<li><p>目前 DBT6中已有的 Profile 数据</p>
+<ul>
+<li><p>BB重排和函数重排相关的文件如下：</p>
+<ul>
+<li><code>.branch_prob</code>，记录分支指令ture分支和false分支的执行频率，Profile文件，格式如下：（函数ID，BBID，true和false分支的频次）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">21 0 1 0</span><br><span class="line">21 2 0 1</span><br><span class="line">21 3 0 1</span><br><span class="line">25 0 0 56</span><br><span class="line">25 1 0 56</span><br><span class="line">25 2 172 56</span><br><span class="line">25 3 0 56</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><del><code>.func_order</code></del>，记录函数重排后的顺序</li>
+<li><del><code>.mapping_order</code></del>，记录重排前函数的顺序和重排后函数顺序的映射关系</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="将-o目标文件伪造成一个可执行文件"><a href="#将-o目标文件伪造成一个可执行文件" class="headerlink" title="将.o目标文件伪造成一个可执行文件"></a>将.o目标文件伪造成一个可执行文件</h3><ul>
+<li>直接套一个程序头表</li>
+<li>符号表信息补全</li>
+</ul>
+<h1 id="Other-Temp-Record"><a href="#Other-Temp-Record" class="headerlink" title="Other Temp Record"></a>Other Temp Record</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(gdb) b SetBBID::runOnMachineFunction</span><br><span class="line">Breakpoint 1 at 0x3000064893b: file /home/pjl/dbt6/sbt/opt/Passes.cpp, line 176.</span><br><span class="line">(gdb) b llvm::AsmPrinter::emitBasicBlockStart</span><br><span class="line">Breakpoint 2 at 0x30001efd9c6: file /llvm/llvm-project-dev-RAGreedy/llvm/lib/CodeGen/AsmPrinter/AsmPrinter.cpp, line 3771.</span><br><span class="line">(gdb) b llvm::MachineFunction::assignBeginEndSections</span><br><span class="line">Breakpoint 3 at 0x3000095e942: file /llvm/llvm-project-dev-RAGreedy/llvm/lib/CodeGen/MachineFunction.cpp, line 375.</span><br><span class="line">b llvm::TargetLoweringObjectFileELF::getSectionForMachineBasicBlock</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>一个构想，能不能在翻译前就先将x86的ELF给BOLT优化一遍？</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span></span><br><span class="line"><span class="attr">redir-port:</span> <span class="number">7892</span></span><br><span class="line"><span class="attr">mixed-port:</span> <span class="number">7893</span></span><br><span class="line"><span class="attr">allow-lan:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">Rule</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span></span><br><span class="line"><span class="attr">external-controller:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:9090</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ictnet</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ss</span></span><br><span class="line">  <span class="attr">server:</span> <span class="number">101.43</span><span class="number">.184</span><span class="number">.92</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">50892</span></span><br><span class="line">  <span class="attr">password:</span> <span class="string">243f11968df4a379d639e4aabf0d5780</span></span><br><span class="line">  <span class="attr">cipher:</span> <span class="string">aes-128-gcm</span></span><br><span class="line">  <span class="attr">obfs:</span> <span class="string">plain</span></span><br><span class="line">  <span class="attr">protocol:</span> <span class="string">origin</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ICT(Bob)@Jikai</span> <span class="string">Ren</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ss</span></span><br><span class="line">  <span class="attr">server:</span> <span class="string">bob.bj.tccloud.dreamerjack.com</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">59002</span></span><br><span class="line">  <span class="attr">password:</span> <span class="string">xsD1dGGhKXWu</span></span><br><span class="line">  <span class="attr">cipher:</span> <span class="string">chacha20-ietf-poly1305</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Proxy</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">select</span></span><br><span class="line">  <span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ictnet</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ICT(Bob)@Jikai</span> <span class="string">Ren</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">IP-CIDR,10.208.0.0/16,Proxy</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">IP-CIDR,10.156.0.0/16,Proxy</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">MATCH,DIRECT</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>ss:&#x2F;&#x2F;Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpqSEs4QmhUQXRlVlpKaw&#x3D;&#x3D;@bob.bj.tccloud.dreamerjack.com:59002&#x2F;#ICT(Bob-Dell)@Jikai+Ren</p>
+<p>加密方法：chacha20-ietf-poly1305</p>
+<p>秘密：jHK8BhTAteVZJk</p>
+</p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-06-09</span><a class="tag" href="/categories/Compiler-LLVM/" title="Compiler &amp; LLVM">Compiler &amp; LLVM </a><i class="fa fa-tag"></i><a class="tag" href="/tags/BOLT/" title="BOLT">BOLT </a><i class="fa fa-tag"></i><a class="tag" href="/tags/RISC-V/" title="RISC-V">RISC-V </a><i class="fa fa-tag"></i><a class="tag" href="/tags/DBT6/" title="DBT6">DBT6 </a><span>About2.1kwords, NaNminNaNsecread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2026/06/03/Hello-Quicy/">Hello Quicy</a></h3></div><div class="post-content"><div class="card"><p><p>这是 Quicy 帮你推送的第一篇测试博文。</p>
+<p>如果这条显示在 <a target="_blank" rel="noopener" href="https://lesleypeng.github.io/">lesleypeng.github.io</a> 上，说明 CI&#x2F;CD 全线贯通！</p>
+<p>🎉</p>
+</p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-06-03</span><a class="tag" href="/categories/测试/" title="测试">测试 </a><i class="fa fa-tag"></i><a class="tag" href="/tags/测试/" title="测试">测试 </a><span>About35words, 7secread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2026/02/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9B%B8%E5%85%B3%E7%AE%97%E6%B3%95/">数据结构相关算法</a></h3></div><div class="post-content"><div class="card"><p><ul>
+<li><p>与基本数据结构相关的算法刷题记录（链表，数组，栈，队列，树，图相关）；</p>
+</li>
+<li><p>只记录解题思路和一些有用的点。</p>
+</li>
+</ul>
+<p>[TOC]</p></p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-02-24</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Algorithm/" title="Algorithm">Algorithm </a><span>About19.7kwords, NaNminNaNsecread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2026/02/14/OS%E7%AC%94%E8%AE%B0/">OS笔记</a></h3></div><div class="post-content"><div class="card"><p><h2 id="OS组织与系统调用（FRANS）"><a href="#OS组织与系统调用（FRANS）" class="headerlink" title="OS组织与系统调用（FRANS）"></a>OS组织与系统调用（FRANS）</h2><ul>
+<li>设计操作系统这一层的一个目的是为了同时运行多个应用程序——并发</li>
+</ul>
+<h3 id="Isolation-隔离性"><a href="#Isolation-隔离性" class="headerlink" title="Isolation 隔离性"></a>Isolation 隔离性</h3><ul>
+<li><p>隔离性是设计OS组织结构的驱动力</p>
+</li>
+<li><p>使用内核态和用户态，隔离OS内核和用户应用程序</p>
+</li>
+<li><p>系统调用：用户态程序能够转换到内核态执行的方法</p>
+</li>
+<li><p>如果操作系统没有隔离性，或者说没有操作系统这个东西，比如说Shell中的某个函数有一个死循环，那么Shell永远也不会释放CPU，进而其他的应用程序也不能够运行，&#x3D;&#x3D;甚至都不能运行一个第三方的程序来停止或者杀死Shell程序&#x3D;&#x3D;。所以Multiplexing（多进程同分时服用）都无法实现 -&gt; 隔离是并发的前提</p>
+</li>
+<li><p>另一个方面说明“隔离是并发的前提”：如果内存中不进行隔离，没有边界，那么当前程序的数据很有可能存到其他应用程序的地址上去，覆盖其他程序内存中的数据</p>
+</li>
+<li><p>操作系统不是直接将CPU提供给应用程序，而是向应用程序提供“进程”，&#x3D;&#x3D;进程抽象了CPU&#x3D;&#x3D;，这样操作系统才能在多个应用程序之间复用一个或者多个CPU</p>
+</li>
+<li><p>&#x3D;&#x3D;exec抽象了内存&#x3D;&#x3D;。当我们在执行exec系统调用的时候，我们会传入一个文件名，而这个文件名对应了一个应用程序的内存镜像。内存镜像里面包括了程序对应的指令，全局的数据。</p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-02-14</span><a class="tag" href="/categories/Systems-Performance-Engineering/" title="Systems &amp; Performance Engineering">Systems &amp; Performance Engineering </a><i class="fa fa-tag"></i><a class="tag" href="/tags/Operation-System/" title="Operation System">Operation System </a><span>About4.8kwords, NaNminNaNsecread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2026/01/19/Pin%E5%AF%B9ELF-%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9A%84%E6%8A%BD%E8%B1%A1%E6%A8%A1%E5%9E%8B/">Pin对ELF/二进制的抽象模型</a></h3></div><div class="post-content"><div class="card"><p><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>IMG &#x3D; 一个被加载的 ELF 文件</li>
+<li>SEC &#x3D; 这个 ELF 里的一个 section（Pin 视角）</li>
+<li>RTN &#x3D; Pin 认为的“函数 &#x2F; routine”（RTN 并不是“从反汇编自动识别出来的函数”，而是 Pin 能确认的“例程”，它的来源高度依赖符号信息）</li>
+</ul>
+<h3 id="IMG"><a href="#IMG" class="headerlink" title="IMG"></a>IMG</h3><ul>
+<li><p>和 <code>/proc/self/maps</code> 里的“一个文件映射”是同一个层级的概念</p>
+</li>
+<li><p>&#x3D;&#x3D;注意：映射和加载的区别&#x3D;&#x3D;</p>
+<ul>
+<li><p>映射的时机是在进程启动<code>exec()</code>时，OS内核会读取文件的头部信息（如 PE 或 ELF 格式），确定代码段、数据段的大小，然后在虚拟地址空间里建立好映射关系。OS在进程的虚拟内存中“划地皮”，告诉进程：“从地址 A 到地址 B 这块区域，对应的是硬盘上某个可执行文件的第 X 字节到第 Y 字节。”此时，物理内存（RAM）里可能一字节的数据都没有</p>
+</li>
+<li><p>加载的时机是OS如果真正执行到某段代码时，发现这一段代码或者是访问某个变量，发现这段代码or这个变量在在对应的物理内存中RAM不存在，<strong>Page Fault</strong> 时，OS才会真正把那一页数据从磁盘换到内存RAM里，这就是所谓的“延迟加载”。</p>
+</li>
+<li><p>虚拟的好处：可以共享部分内存，比如多个进程可以把各自的虚拟地址空间“映射”到物理内存中同一份可执行代码上；映射允许操作系统设置权限；允许程序的大小超过物理内存的限制。</p>
+</li>
+</ul>
+</li>
+<li><p><code>IMG_AddInstrumentFunction(ImageLoad, 0);</code>，当 loader 把 ELF 映射进进程时，Pin 触发，会调用我们自定义的<code>ImageLoad()</code>，</p>
+</li>
+</ul></p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-01-19</span><a class="tag" href="/categories/Dev-Tools-Build-Systems/" title="Dev Tools &amp; Build Systems">Dev Tools &amp; Build Systems </a><i class="fa fa-tag"></i><a class="tag" href="/tags/Pin-tool/" title="Pin tool">Pin tool </a><i class="fa fa-tag"></i><a class="tag" href="/tags/profiling/" title="profiling">profiling </a><i class="fa fa-tag"></i><a class="tag" href="/tags/x86/" title="x86">x86 </a><span>About918words, 3min4secread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2025/12/30/dbt-todo/"></a></h3></div><div class="post-content"><div class="card"><p><p>记录工作日程TODO List</p></p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2025-12-30</span><a class="tag" href="/categories/TO-DO-List/" title="TO-DO List">TO-DO List </a><i class="fa fa-tag"></i><a class="tag" href="/tags/RISC-V/" title="RISC-V">RISC-V </a><span>About15.6kwords, NaNminNaNsecread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2025/11/27/BOLT%E6%90%AD%E5%BB%BA%E4%BB%A5%E5%8F%8A%E4%BE%9D%E8%B5%96/">BOLT搭建以及依赖</a></h3></div><div class="post-content"><div class="card"><p><h1 id="一、源码下载以及构建编译"><a href="#一、源码下载以及构建编译" class="headerlink" title="一、源码下载以及构建编译"></a>一、源码下载以及构建编译</h1><div style="display: block; margin: 0 auto; width: 45%;">
+    <img src="/2025/11/27/BOLT%E6%90%AD%E5%BB%BA%E4%BB%A5%E5%8F%8A%E4%BE%9D%E8%B5%96/image-1.png" class="" title="Describe">
+</div>
+
+
+<ul>
+<li><p>关于使用BOLT优化的目标架构elf文件和编译BOLT的服务器架构： BOLT 基于 LLVM，LLVM 本身设计就是支持<strong>交叉编译</strong>和处理的。只要在编译 BOLT 时开启了 RISC-V 的 Target 支持（在cmake选项<code>-DLLVM_TARGETS_TO_BUILD</code>中加上优化的目标架构即可），x86 架构下编译得到的BOLT完全可以读取、分析和重写RISC-V 的ELF文件。</p>
+</li>
+<li><p><strong>工作流（以目标优化架构为RISC-V为例）</strong>：</p>
+<ul>
+<li>x86架构的机器编译BOLT（不是绝对的，只要其他机器性能足够稳定。这里优先选择在x86上编译是因为主流x86架构的服务器性能更好，编译LLVM&#x2F;BOLT非常消耗CPU和内存）</p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2025-11-27</span><a class="tag" href="/categories/Compiler-LLVM/" title="Compiler &amp; LLVM">Compiler &amp; LLVM </a><i class="fa fa-tag"></i><a class="tag" href="/tags/BOLT/" title="BOLT">BOLT </a><i class="fa fa-tag"></i><a class="tag" href="/tags/ninja/" title="ninja">ninja </a><i class="fa fa-tag"></i><a class="tag" href="/tags/RISC-V/" title="RISC-V">RISC-V </a><span>About5.7kwords, NaNminNaNsecread</span></div></div></div></div><div class="post animated"><div class="post-title"><h3><a href="/2025/11/26/BOLT-Source-Code-Reading-Overview/">BOLT Source Code Reading Overview</a></h3></div><div class="post-content"><div class="card"><p><h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li><p>LLVM BOLT（Binary Optimization and Layout Tool）是一个基于LLVM的后链接优化器，旨在通过优化代码布局来加速大型应用程序，除了代码布局的优化，Bolt自己也实现了很多其他的pass用于优化性能</p></div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2025-11-26</span><a class="tag" href="/categories/Compiler-LLVM/" title="Compiler &amp; LLVM">Compiler &amp; LLVM </a><i class="fa fa-tag"></i><a class="tag" href="/tags/LLVM优化/" title="LLVM优化">LLVM优化 </a><i class="fa fa-tag"></i><a class="tag" href="/tags/后链接优化/" title="后链接优化">后链接优化 </a><i class="fa fa-tag"></i><a class="tag" href="/tags/BOLT/" title="BOLT">BOLT </a><span>About16.7kwords, NaNminNaNsecread</span></div></div></div></div></div></div></div></main-outlet><script>(async function(){ if (Anatolo.search == null) await Anatolo.getMsg("search-init"); Anatolo.search.config = {translation:{posts:"Posts",pages:"Pages",categories:"Categories",tags:"Tags",untitled:"(Untitled)",} }; })()</script><div class="searchbox ins-search modal-cover"><div class="searchbox-container ins-search-container modal-container"><div class="searchbox-input-wrapper"><input class="searchbox-input ins-search-input" type="text" placeholder="Search..."><span class="searchbox-close"><a class="fa fa-times-circle" onclick="Anatolo.search.closeWindow();"></a></span></div><div class="searchbox-result-wrapper ins-section-wrapper"><div class="ins-section-container"><p>Seraching...</p></div></div></div></div><button class="float-button hide" id="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" type="button" title="Scroll to top"><i class="fa fa-angle-up"></i></button><div class="modal-cover" id="success-indicator"><div class="modal-container indicator"><i class="fa fa-check"></i></div></div></body></html>

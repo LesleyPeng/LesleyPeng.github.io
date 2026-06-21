@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="zh-CN" theme="default"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="Lesley PengJialing"><title>OS笔记 · Lesley's Blog</title><meta name="description" content="OS组织与系统调用（FRANS）
+设计操作系统这一层的一个目的是为了同时运行多个应用程序——并发
+
+Isolation 隔离性
+隔离性是设计OS组织结构的驱动力
+
+使用内核态和用户态，隔离OS内核和用户应用程序
+
+系统调用：用户态程序能够转换到内核态执行的方法
+
+如果操作系统没有隔离性，或者说没有操"><meta name="keywords" content="Blog,博客,Hexo"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta id="site_data_static" data-url="/"><meta name="renderer" content="webkit"><link rel="shortcut icon" type="image/x-icon" href="/images/lesley.png"><link rel="stylesheet" href="/js_complied/bundle.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet"><script src="/js_complied/bundle.js"></script><script>Anatolo.comment.setConfig({"valine":{"enable":false,"appid":null,"appkey":null,"notify":false,"verify":false,"avatar":"mm","placeholder":"hello, world"},"gitment":{"enable":false,"owner":"Your GitHub ID","repo":"Repo to store comments","client_id":"Your client ID","client_secret":"Your client secret"},"gitalk":{"enable":false,"owner":"Your GitHub ID","repo":"Repo to store comments","client_id":"Your client ID","client_secret":"Your client secret"},"duoshuo":null,"disqus":null,"gentie":null})</script><meta name="generator" content="Hexo 7.3.0"></head><body> <main-outlet><div class="page-top animated"><div class="nav"><li><a href="/">Home</a></li><li><a href="/archives">Archives</a></li><li><a href="/tags">Tags</a></li><li><a href="/about">About</a></li><li><a href="/links">Links</a></li></div><div class="information"><div class="nav_right_btn"><li class="btn-toggle-more"><i class="fa fa-ellipsis"></i></li><li class="btn-go-back"><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li><li class="btn-search"><a class="fa fa-search" onclick="Anatolo.search.openWindow();"></a></li><li class="btn-toggle-theme"><a class="far fa-sun" onclick="Anatolo.darkLightToggle();"></a></li></div><div class="avatar"><img src="/images/lesley.png"></div></div></div><div class="toc-mobile"><div class="toc-button"><span>Menu</span></div><div class="toc-container in-page animated fadeInDown"><div class="toclist-container"><div class="tocmenu"><ol class="toclist"><li class="toclist-item toclist-level-2"><a class="toclist-link" href="#OS%E7%BB%84%E7%BB%87%E4%B8%8E%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88FRANS%EF%BC%89"><span class="toclist-text">OS组织与系统调用（FRANS）</span></a><ol class="toclist-child"><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#Isolation-%E9%9A%94%E7%A6%BB%E6%80%A7"><span class="toclist-text">Isolation 隔离性</span></a></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#Defensive-%E9%98%B2%E5%BE%A1%E6%80%A7"><span class="toclist-text">Defensive 防御性</span></a><ol class="toclist-child"><li class="toclist-item toclist-level-4"><a class="toclist-link" href="#%E7%A1%AC%E4%BB%B6%E9%9A%94%E7%A6%BB%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E2%80%94%E2%80%94User-Kernel-Mode"><span class="toclist-text">硬件隔离第一部分——User&#x2F;Kernel Mode</span></a></li><li class="toclist-item toclist-level-4"><a class="toclist-link" href="#%E7%A1%AC%E4%BB%B6%E9%9A%94%E7%A6%BB%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%E2%80%94%E2%80%94Page-Table-%E9%A1%B5%E8%A1%A8"><span class="toclist-text">硬件隔离第二部分——Page Table 页表</span></a></li></ol></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#User-Kernel-Mode%E5%88%87%E6%8D%A2"><span class="toclist-text">User &#x2F; Kernel Mode切换</span></a></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#%E5%AE%8F%E5%86%85%E6%A0%B8-vs-%E5%BE%AE%E5%86%85%E6%A0%B8-%EF%BC%88Monolithic-Kernel-vs-Micro-Kernel%EF%BC%89"><span class="toclist-text">宏内核 vs 微内核 （Monolithic Kernel vs Micro Kernel）</span></a></li></ol></li><li class="toclist-item toclist-level-2"><a class="toclist-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%EF%BC%88Virtual-Memory%EF%BC%89"><span class="toclist-text">虚拟内存（Virtual Memory）</span></a><ol class="toclist-child"><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%EF%BC%88Address-Spaces%EF%BC%89"><span class="toclist-text">地址空间（Address Spaces）</span></a></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#%E9%A1%B5%E8%A1%A8%EF%BC%88Page-tables%EF%BC%89"><span class="toclist-text">页表（Page tables）</span></a></li></ol></li></ol></div></div></div></div><div class="sidebar animated"><div class="sidebar-top"><div class="logo-title"><div class="title"><img src="/images/lesley.png" style="width:220px;" alt="favicon"><h3 title=""><a href="/">Lesley's Blog</a></h3><div class="description"><p>A simple and beautiful blog</p></div></div><ul class="social-links"><li><a target="_blank" rel="noopener" href="https://github.com/LesleyPeng/"><i class="fab fa-github"></i></a></li><li><a href="mailto:pengjl2024@shanghaitech.edu.cn"><i class="fa fa-envelope"></i></a></li></ul></div><div class="toc-container in-sidebar animated fadeInDown"><details class="ltr" open><summary>Menu</summary><div class="toclist-container"><div class="tocmenu"><ol class="toclist"><li class="toclist-item toclist-level-2"><a class="toclist-link" href="#OS%E7%BB%84%E7%BB%87%E4%B8%8E%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88FRANS%EF%BC%89"><span class="toclist-text">OS组织与系统调用（FRANS）</span></a><ol class="toclist-child"><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#Isolation-%E9%9A%94%E7%A6%BB%E6%80%A7"><span class="toclist-text">Isolation 隔离性</span></a></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#Defensive-%E9%98%B2%E5%BE%A1%E6%80%A7"><span class="toclist-text">Defensive 防御性</span></a><ol class="toclist-child"><li class="toclist-item toclist-level-4"><a class="toclist-link" href="#%E7%A1%AC%E4%BB%B6%E9%9A%94%E7%A6%BB%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E2%80%94%E2%80%94User-Kernel-Mode"><span class="toclist-text">硬件隔离第一部分——User&#x2F;Kernel Mode</span></a></li><li class="toclist-item toclist-level-4"><a class="toclist-link" href="#%E7%A1%AC%E4%BB%B6%E9%9A%94%E7%A6%BB%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%E2%80%94%E2%80%94Page-Table-%E9%A1%B5%E8%A1%A8"><span class="toclist-text">硬件隔离第二部分——Page Table 页表</span></a></li></ol></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#User-Kernel-Mode%E5%88%87%E6%8D%A2"><span class="toclist-text">User &#x2F; Kernel Mode切换</span></a></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#%E5%AE%8F%E5%86%85%E6%A0%B8-vs-%E5%BE%AE%E5%86%85%E6%A0%B8-%EF%BC%88Monolithic-Kernel-vs-Micro-Kernel%EF%BC%89"><span class="toclist-text">宏内核 vs 微内核 （Monolithic Kernel vs Micro Kernel）</span></a></li></ol></li><li class="toclist-item toclist-level-2"><a class="toclist-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%EF%BC%88Virtual-Memory%EF%BC%89"><span class="toclist-text">虚拟内存（Virtual Memory）</span></a><ol class="toclist-child"><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%EF%BC%88Address-Spaces%EF%BC%89"><span class="toclist-text">地址空间（Address Spaces）</span></a></li><li class="toclist-item toclist-level-3"><a class="toclist-link" href="#%E9%A1%B5%E8%A1%A8%EF%BC%88Page-tables%EF%BC%89"><span class="toclist-text">页表（Page tables）</span></a></li></ol></li></ol></div></div></details></div></div><div class="footer"><div class="p"><span>全站CC-BY-SA-3.0 </span><i class="fa fa-star"></i><span> Lesley PengJialing</span></div><div class="by_farbox"><span>Powered by</span><a href="https://hexo.io/zh-cn/" target="_blank"> Hexo</a><span> &</span><a href="https://github.com/Lhcfl/hexo-theme-anatolo" target="_blank"> Anatolo</a></div><div class="beian"></div></div></div><div class="main animated fadeInDown"><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated"><div class="post-title"><h3><a>OS笔记</a></h3></div><div class="post-content"><p><h2 id="OS组织与系统调用（FRANS）"><a href="#OS组织与系统调用（FRANS）" class="headerlink" title="OS组织与系统调用（FRANS）"></a>OS组织与系统调用（FRANS）</h2><ul>
+<li>设计操作系统这一层的一个目的是为了同时运行多个应用程序——并发</li>
+</ul>
+<h3 id="Isolation-隔离性"><a href="#Isolation-隔离性" class="headerlink" title="Isolation 隔离性"></a>Isolation 隔离性</h3><ul>
+<li><p>隔离性是设计OS组织结构的驱动力</p>
+</li>
+<li><p>使用内核态和用户态，隔离OS内核和用户应用程序</p>
+</li>
+<li><p>系统调用：用户态程序能够转换到内核态执行的方法</p>
+</li>
+<li><p>如果操作系统没有隔离性，或者说没有操作系统这个东西，比如说Shell中的某个函数有一个死循环，那么Shell永远也不会释放CPU，进而其他的应用程序也不能够运行，&#x3D;&#x3D;甚至都不能运行一个第三方的程序来停止或者杀死Shell程序&#x3D;&#x3D;。所以Multiplexing（多进程同分时服用）都无法实现 -&gt; 隔离是并发的前提</p>
+</li>
+<li><p>另一个方面说明“隔离是并发的前提”：如果内存中不进行隔离，没有边界，那么当前程序的数据很有可能存到其他应用程序的地址上去，覆盖其他程序内存中的数据</p>
+</li>
+<li><p>操作系统不是直接将CPU提供给应用程序，而是向应用程序提供“进程”，&#x3D;&#x3D;进程抽象了CPU&#x3D;&#x3D;，这样操作系统才能在多个应用程序之间复用一个或者多个CPU</p>
+</li>
+<li><p>&#x3D;&#x3D;exec抽象了内存&#x3D;&#x3D;。当我们在执行exec系统调用的时候，我们会传入一个文件名，而这个文件名对应了一个应用程序的内存镜像。内存镜像里面包括了程序对应的指令，全局的数据。<span id="more"></span></p>
+</li>
+<li><p>files基本上来说抽象了磁盘。应用程序不会直接读写挂在计算机上的磁盘本身，Files提供了非常方便的磁盘抽象，你可以对文件命名，读写文件等等。之后，操作系统会决定如何将文件与磁盘中的块对应，确保一个磁盘块只出现在一个文件中，并且确保用户A不能操作用户B的文件。</p>
+</li>
+</ul>
+<h3 id="Defensive-防御性"><a href="#Defensive-防御性" class="headerlink" title="Defensive 防御性"></a>Defensive 防御性</h3><ul>
+<li>如果说应用程序无意或者恶意的向系统调用传入一些错误的参数就会导致操作系统崩溃，那就太糟糕了。操作系统需要能够应对恶意应用程序，不能因为恶意程序导致自身崩溃，就需要拒绝为这些非法的应用程序提供服务——核心是应用程序不能打破内核态与用户态之间的隔离。</li>
+<li>硬件隔离：（两个部分）<ul>
+<li>第一部分是user&#x2F;kernel mode</li>
+<li>第二部分是page table或者虚拟内存（Virtual Memory）</li>
+</ul>
+</li>
+<li>所有的处理器，如果需要运行能够支持多个应用程序的操作系统，需要同时支持user&#x2F;kernle mode和虚拟内存</li>
+</ul>
+<h4 id="硬件隔离第一部分——User-Kernel-Mode"><a href="#硬件隔离第一部分——User-Kernel-Mode" class="headerlink" title="硬件隔离第一部分——User&#x2F;Kernel Mode"></a>硬件隔离第一部分——User&#x2F;Kernel Mode</h4><ul>
+<li>CPU为了实现OS这套隔离也会有相应的两种操作模式：User Mode和Kernel Mode（由一个flag位控制）</li>
+<li>运行在前者CPU只能运行普通权限的指令（比如ADD，SUB，JAL等），运行在后者时CPU可以运行特定权限的指令（比如设置页表寄存器，关时钟中断）</li>
+<li>如果User Mode尝试执行特殊权限指令，处理器会拒绝。实际上，如果用户程序想让CPU切换操作模式，需要通过系统调用ECALL出发一个软中断，软中断会去查询OS预先设定的中断的向量表，并执行中断向量表中包含的中断处理程序。这个中断处理程序在内核中，这样就完成了User Mode到Kernel Mode的切换，并执行用户程序想要执行的特殊权限指令。</li>
+<li>RISC-V还有第三种模式：Machine Mode（所以实际上由三级权限）</li>
+</ul>
+<h4 id="硬件隔离第二部分——Page-Table-页表"><a href="#硬件隔离第二部分——Page-Table-页表" class="headerlink" title="硬件隔离第二部分——Page Table 页表"></a>硬件隔离第二部分——Page Table 页表</h4><ul>
+<li>CPU都包含了页表，页表会将虚存与物理内存地址做对应</li>
+<li>每一个进程都有自己独立的页表，也只能访问自己页表中映射的物理内存</li>
+<li>OS的工作是组织这些页表，使得每一个进程都有不重合的物理内存，以此实现物理内存的隔离性</li>
+</ul>
+<h3 id="User-Kernel-Mode切换"><a href="#User-Kernel-Mode切换" class="headerlink" title="User &#x2F; Kernel Mode切换"></a>User &#x2F; Kernel Mode切换</h3><ul>
+<li>这种转换是需要的，例如，当ls程序运行的时候，会调用read&#x2F;write系统调用；Shell程序会调用fork或者exec系统调用，所以必须要有一种方式可以使得用户的应用程序能够将控制权以一种协同工作的方式转移到内核，这样内核才能提供相应的服务。</li>
+<li>通过调用系统调用ECALL出发一个软中断，ECALL接受一个数字参数，数字参数代表了应用程序想要调用的System Call。</li>
+<li>比如用户想要调用write这一系统调用：write系统调用不能直接调用内核中的write代码，而是由封装好的系统调用函数执行ECALL指令。所以&#x3D;&#x3D;write函数实际上调用的是ECALL指令，指令的参数是代表了write系统调用的数字&#x3D;&#x3D;。之后控制权到了syscall函数，syscall会实际调用write系统调用。RISV-V中系统调用 数字如下</li>
+<li><img src="https://docs.sunznx.com/mit6.s081/~gitbook/image?url=https://2137372489-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%252FjtZnlU70E1qqZVUpxdEX%252Fuploads%252Fgit-blob-13424875532c67ba2123e0383ff7b2aaf6a57211%252Fimage%2520(118).png?alt=media&width=768&dpr=2&quality=100&sign=66acfe45&sv=2"></li>
+<li>当应用程序表现的恶意或者就是在一个死循环中，内核是如何夺回控制权限的？<ul>
+<li>内核会通过硬件设置一个定时器，定时器到期之后会将控制权限从用户空间转移到内核空间，之后内核就有了控制能力并可以重新调度CPU到另一个进程中。我们接下来会看一些更加详细的细节。</li>
+</ul>
+</li>
+</ul>
+<h3 id="宏内核-vs-微内核-（Monolithic-Kernel-vs-Micro-Kernel）"><a href="#宏内核-vs-微内核-（Monolithic-Kernel-vs-Micro-Kernel）" class="headerlink" title="宏内核 vs 微内核 （Monolithic Kernel vs Micro Kernel）"></a>宏内核 vs 微内核 （Monolithic Kernel vs Micro Kernel）</h3><ul>
+<li>内核有时候也被称为可被信任的计算空间（Trusted Computing Base），在一些安全的术语中也被称为TCB</li>
+<li>内核必须要将用户应用程序或者进程当做是恶意的</li>
+<li>什么程序应该运行在kernel mode？<ul>
+<li>其中一个选项是让整个操作系统代码都运行在kernel mode。（比如大多数Unix操作系统），这是宏内核。</li>
+<li>另一种设计主要关注点是减少内核中的代码，它被称为Micro Kernel Design 微内核。在这种模式下，希望在kernel mode中运行尽可能少的代码。所以这种设计下还是有内核，但是内核只有非常少的几个模块</li>
+</ul>
+</li>
+<li>宏内核：<ul>
+<li>如果考虑Bug的话，这种方式不太好。在一个宏内核中，任何一个操作系统的Bug都有可能成为漏洞。</li>
+<li>如果考虑性能的话，这种方式很好。一个操作系统，它包含了各种各样的组成部分，比如说文件系统，虚拟内存，进程管理。宏内核的优势在于，因为这些子模块现在都位于同一个程序中，它们可以紧密的集成在一起，这样的集成提供很好的性能</li>
+</ul>
+</li>
+<li>微内核：<ul>
+<li>内核只有非常少的几个模块，例如，内核通常会有一些IPC的实现或者是Message passing；非常少的虚拟内存的支持，可能只支持了page table；以及分时复用CPU的一些支持。文件系统运行的就像一个普通的用户程序</li>
+<li>因为在内核中的代码的数量较小，更少的代码意味着更少的Bug，更少的漏洞。</li>
+<li>Bur，对于任何文件系统的交互，都需要分别完成2次用户空间&lt;-&gt;内核空间的跳转。比如Shell调用了exec，Shell会通过内核中的IPC系统发送一条消息（<strong>一次User到Kernel</strong>），内核会查看这条消息并发现这是给文件系统的消息，之后内核会把消息发送给文件系统（<strong>一次Kernel到User</strong>），文件系统会完成它的工作之后会向IPC系统发送回一条消息说（<strong>一次User到Kernel</strong>），这是你的exec系统调用的结果，之后IPC系统再将这条消息发送给Shell（<strong>一次Kernel到User</strong>）。</li>
+<li>与宏内核对比，在宏内核中如果一个应用程序需要与文件系统交互，只需要完成1次用户空间&lt;-&gt;内核空间的跳转，所以微内核的的跳转是宏内核的两倍。通常微内核的挑战在于性能更差，这里有两个方面需要考虑：<ol>
+<li>在user&#x2F;kernel mode反复跳转带来的性能损耗。</li>
+<li>在一个类似宏内核的紧耦合系统，各个组成部分，例如文件系统和虚拟内存系统，可以很容易的共享page cache。而在微内核中，每个部分之间都很好的隔离开了，这种共享更难实现。进而导致更难在微内核中得到更高的性能。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="虚拟内存（Virtual-Memory）"><a href="#虚拟内存（Virtual-Memory）" class="headerlink" title="虚拟内存（Virtual Memory）"></a>虚拟内存（Virtual Memory）</h2><h3 id="地址空间（Address-Spaces）"><a href="#地址空间（Address-Spaces）" class="headerlink" title="地址空间（Address Spaces）"></a>地址空间（Address Spaces）</h3><ul>
+<li>创造虚拟内存的一个出发点是你可以通过它实现隔离性。如果你正确的设置了page table，并且通过代码对它进行正确的管理，那么原则上你可以实现强隔离。</li>
+<li>物理内存：内存是由一些DRAM芯片组成。在这些DRAM芯片中保存了程序的数据和代码。例如内存中的某一个部分是内核，包括了文本，数据，栈等等；如果运行了Shell，内存中的某个部分就是Shell；如果运行了cat程序，内存中的某个部分是cat程序。</li>
+</ul>
+<h3 id="页表（Page-tables）"><a href="#页表（Page-tables）" class="headerlink" title="页表（Page tables）"></a>页表（Page tables）</h3><ul>
+<li><p>直觉：存在某种形式的映射关系；并且映射关系对于实现隔离性来说有帮助。</p>
+</li>
+<li><p>页表是在硬件中通过处理器和内存管理单元（Memory Management Unit）实现。</p>
+</li>
+<li><p>对于任何一条带有地址的指令，其中的地址应该认为是虚拟内存地址而不是物理地址。例如：<code>sd $7, (a0)</code>，假设寄存器a0中是地址0x1000，那么这是一个虚拟内存地址。虚拟内存地址会被转到内存管理单元（MMU，Memory Management Unit），是一个硬件。</p>
+<ul>
+<li>MMU会将虚拟地址翻译成物理地址。之后这个物理地址会被用来索引物理内存，并从物理内存加载，或者向物理内存存储数据。</li>
+<li>从CPU的角度来说，一旦MMU打开了，它执行的每条指令中的地址都是虚拟内存地址。</li>
+<li>为了能够完成虚拟内存地址到物理内存地址的翻译，MMU会有一个表单，表单中，一边是虚拟内存地址，另一边是物理内存地址。</li>
+<li>通常来说，内存地址对应关系的表单也保存在内存中。所以CPU中需要有一些寄存器用来存放该表单在物理内存中的地址。RISC-V上一个叫做SATP的寄存器会保存地址关系表单在内存中的地址；这样，CPU就可以告诉MMU，可以从哪找到将虚拟内存地址翻译成物理内存地址的表单。</li>
+<li>page table保存在内存中，MMU只是会去查看page table</li>
+</ul>
+</li>
+<li><p>每个程序都有自己独立的表单，并且这个表单定义了应用程序的地址空间。所以&#x3D;&#x3D;当操作系统将CPU从一个应用程序切换到另一个应用程序时，同时也需要切换SATP寄存器中的内容（内核会写SATP寄存器）&#x3D;&#x3D;，从而指向新的进程保存在物理内存中的地址对应表单。</p>
+</li>
+<li><p><strong>每一条表单条目对应一个4KB大小的page</strong>，在物理内存中，这是连续的4096个字节。</p>
+</li>
+<li><p><strong>对于虚拟内存地址，我们将它划分为两个部分，index和offset，index用来查找page，offset对应的是一个page中的哪个字节</strong>（12位offset正好可以对应一页的大小）</p>
+<ul>
+<li><p>一个64位虚拟地址的划分如下：（25个位未被使用，27个bit用来做index，12bit用来做offset）</p>
+</li>
+<li><table>
+<thead>
+<tr>
+<th align="center">63-39</th>
+<th align="center">38-12</th>
+<th align="center">11-0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">EXT</td>
+<td align="center">index</td>
+<td align="center">offset</td>
+</tr>
+</tbody></table>
+<p>虚拟内存地址的数量现在只有$2^{39}$个，大概是512GB。最新的处理器或许可以支持更大的地址空间，只需要将未使用的25bit拿出来做为虚拟内存地址的一部分即可</p>
+</li>
+</ul>
+</li>
+<li><p>在RISC-V中，物理内存地址是56bit，其中44bit是物理page号（PPN，Physical Page Number），剩下12bit是offset完全继承自虚拟内存地址。大多数主板还不支持2^56这么大的物理内存</p>
+</li>
+<li><p>实际中，<strong>page table是一个多级的结构</strong>。27bit的index，实际上是由3个9bit的数字组成（L2，L1，L0）。前9个bit也就是L2被用来索引最高级的page directory。一个directory是4096Bytes，就跟page的大小是一样的。**Directory中的一个条目被称为PTE（Page Table Entry）**是64bits，就像寄存器的大小一样，也就是8Bytes。所以一个Directory page有$2^9&#x3D;512$个条目<img src="https://docs.sunznx.com/mit6.s081/~gitbook/image?url=https://2137372489-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%252FjtZnlU70E1qqZVUpxdEX%252Fuploads%252Fgit-blob-53325714357c7968cb5789651cd96632061c5de2%252Fimage%2520(167).png?alt=media&width=768&dpr=2&quality=100&sign=415d1f66&sv=2"></p>
+<ul>
+<li>SATP寄存器会指向最高一级的page directory的物理内存地址，之后我们用虚拟内存中index的高9bit用来索引最高一级的page directory，这样我们就能得到一个PPN（Physical Page Number），也就是物理page号。这个PPN指向了中间级的page directory。当我们在使用中间级的page directory时，我们通过虚拟内存地址中的L1部分完成索引。接下来会走到最低级的page directory，我们通过虚拟内存地址中的L0部分完成索引。在最低级的page directory中，我们可以得到对应于虚拟内存地址的物理内存地址。</li>
+<li>实际的索引是由3步，而不是1步完成。</li>
+<li>这种方式的主要优点是，如果地址空间中大部分地址都没有使用，你不必为每一个index准备一个条目。例如：如果你的进程地址空间只使用了一个page，在最高级L2，你需要一个page directory。在这个page directory中，你需要一个数字是0的PTE，指向中间级page directory。所以在中间级L1，你也需要一个page directory，里面也是一个数字0的PTE，指向最低级page directory L0。所以这里总共需要3个page directory，使用的条目数是3 * 512。（每一级都只需要一个page directory，一个 page directory单位就是512个PTE）</li>
+<li>在不分多级的方案中，虽然我们只使用了一个page，还是需要2^27个PTE。</li>
+</ul>
+</li>
+<li><p>每个PTE的低10bit是一堆标志位：</p>
+<ul>
+<li>第0位：第一个标志位是Valid。如果Valid bit位为1，那么表明这是一条合法的PTE，你可以用它来做地址翻译。对于刚刚举得那个小例子（应用程序只用了1个page的例子），我们只使用了3个page directory，每个page directory中只有第0个PTE被使用了，所以只有第0个PTE的Valid bit位会被设置成1，其他的511个PTE的Valid bit为0。这个标志位告诉MMU，你不能使用这条PTE，因为这条PTE并不包含有用的信息。</li>
+<li>第1和2位：下两个标志位分别是Readable和Writable。表明你是否可以读&#x2F;写这个page。</li>
+<li>第3位：Executable表明你可以从这个page执行指令。</li>
+<li>第4位：User表明这个page可以被运行在用户空间的进程访问。</li>
+<li>其他标志位并不是那么重要，他们偶尔会出现，前面5个是重要的标志位。</li>
+</ul>
+</li>
+<li><pre><code>虚拟地址 (VA): [ VPN2: 0x000 ] [ VPN1: 0x100 ] [ VPN0: 0x100 ] [ Offset: 0x123 ]
+                   |              |              |                |
+                   |              |              |                |
+(satp)基址-----&gt;[一级页表]          |              |                |
+                   | PPN:0x90000  |              |                |
+                   └----加索引---&gt;[二级页表]       |                |
+                                     | PPN:0xA0000|               |
+                                     └----加索引--&gt;[三级页表]        |
+                                                      | PPN:0x55555|
+                                                      └------------┐
+                                                                   ↓
+物理地址 (PA): [        物理页号 PPN: 0x55555         ] [ Offset: 0x123 ]
+               ( 等价于 0x55555 &lt;&lt; 12 | 0x123 = 0x55555123 )
+最终物理地址 (PA) = 0x5555_5000 + 0x123 = 0x5555_5123
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">-   </span><br><span class="line"></span><br><span class="line">### 页表缓存（Translation Lookaside Buffer）</span><br><span class="line"></span><br><span class="line">-   如果当处理器从内存加载或者存储数据时，都要做3次内存查找，也就是三次访存操作，这里代价有点高。实际中，几乎所有的处理器都会对于最近使用过的虚拟地址的翻译结果有缓存（CPU 内部准备了一个超级快的小缓存，叫 **TLB** ）。这个缓存被称为：Translation Lookside Buffer（通常翻译成页表缓存，TLB）也就是快表</span><br><span class="line">    -   当处理器第一次查找一个虚拟地址时，硬件通过3级page table得到最终的PPN（程序中的某个虚拟地址被第一次查找必然要做三次访存），TLB会保存虚拟地址到物理地址的映射关系。这样下一次当你访问同一个虚拟地址时，处理器可以查看TLB，TLB会直接返回物理地址，而不需要通过page table得到结果。</span><br><span class="line">    -   如果你切换了page table，操作系统需要告诉处理器当前正在切换page table，处理器会清空TLB。在RISC-V中，清空TLB的指令是`sfence_vma`。</span><br><span class="line">        -   sfence只能使本地的core的tlb条目实效，其他核不行，OS使用昂贵的核间中断机制</span><br><span class="line">        -   TLB的一致性：同一个进程的不同线程会运行到不同核上，某一个线程如果修改了，不同核上的TLB需要保持一致</span><br><span class="line">-   3级 page table的查找都发生在硬件中。MMU是硬件的一部分而不是操作系统的一部分。</span><br><span class="line">-   Cache miss会往大的Cache级别里找，都miss就去memory查</span><br><span class="line"></span><br><span class="line">### 相关函数</span><br><span class="line"></span><br><span class="line">-   </span><br><span class="line"></span><br><span class="line">```c</span><br><span class="line">//main函数中调用的一个函数是kvminit（3.9），这个函数会设置好kernel的地址空间</span><br><span class="line">//函数的第一步是为最高一级page directory分配物理page（注，调用kalloc就是分配物理page）</span><br><span class="line">kernel_pagetable = (pagetable_t) kalloc();</span><br><span class="line">memset(kernel_pagetable, 0, PGSIZE);</span><br><span class="line">//之后，通过kvmmap函数，将每一个I/O设备映射到内核。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+![](https://docs.sunznx.com/mit6.s081/~gitbook/image?url=https%3A%2F%2F2137372489-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FjtZnlU70E1qqZVUpxdEX%252Fuploads%252Fgit-blob-d6979b1aa7a6aa89dc0aa87e4cdfba809737263a%252Fimage%2520%28199%29.png%3Falt%3Dmedia&amp;width=768&amp;dpr=2&amp;quality=100&amp;sign=574c5da&amp;sv=2)
+</code></pre>
+</li>
+<li><p>vmprint，这个函数会打印当前的kernel page table</p>
+</li>
+<li><p>kvminit，这个函数会设置好kernel的地址空间</p>
+</li>
+<li><p>kvminithart函数，首先设置了SATP寄存器，kernel_pagetable变量来自于kvminit第一行。所以这里实际上是内核告诉MMU来使用刚刚设置好的page table。</p>
+</li>
+</ul>
+<p><img src="https://docs.sunznx.com/mit6.s081/~gitbook/image?url=https://2137372489-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%252FjtZnlU70E1qqZVUpxdEX%252Fuploads%252Fgit-blob-7717d095bb6c83d70e1d002ba7192860f032da3e%252Fimage%2520(196).png?alt=media&width=768&dpr=2&quality=100&sign=5c457484&sv=2"></p>
+<ul>
+<li>walk函数，kvminithart函数中的kernel_page_table是一个物理地址，写入到SATP寄存器中。从那以后，我们的代码运行在一个我们构建出来的地址空间中。在之前的kvminit函数中，kvmmap会对每个地址或者每个page调用walk函数。<ul>
+<li>看kvminithart函数，这里的kernel_page_table是一个物理地址，并写入到SATP寄存器中。从那以后，我们的代码运行在一个我们构建出来的地址空间中。在之前的kvminit函数中，kvmmap会对每个地址或者每个page调用walk函数</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://docs.sunznx.com/mit6.s081/~gitbook/image?url=https://2137372489-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%252FjtZnlU70E1qqZVUpxdEX%252Fuploads%252Fgit-blob-69f4ad0417197f262bc9b6bda758af479aab5cfa%252Fimage%2520(207).png?alt=media&width=768&dpr=2&quality=100&sign=6fc18ad2&sv=2"></p>
+</p></div><div class="post-footer"><div class="tip">本文采用CC-BY-SA-3.0协议，转载请注明出处<br>Author: Lesley PengJialing</div><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2026-02-14</span><a class="tag" href="/categories/Systems-Performance-Engineering/" title="Systems &amp; Performance Engineering">Systems &amp; Performance Engineering </a><i class="fa fa-tag"></i><a class="tag" href="/tags/Operation-System/" title="Operation System">Operation System </a><span>About4.8kwords, NaNminNaNsecread</span></div></div></div></div><div class="share"><div class="share-btn linkonly"><a class="fa fa-link" onclick="Utils.copyToClipboard(window.location.href)" ref="sidebar"></a></div><div class="share-btn evernote"><a class="fa fa-share" onclick="Anatolo.share.native()" ref="sidebar"></a></div><div class="share-btn weibo"><a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&amp;title=',e(d.title),'&amp;appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a></div><div class="share-btn twitter"><a class="fab fa-twitter" target="_blank" rel="noopener" href="http://twitter.com/intent/tweet?text=Share%0A%0ALesley's%20Blog%20%C2%B7%20OS%E7%AC%94%E8%AE%B0%0Ahttp://example.com/2026/02/14/OS%E7%AC%94%E8%AE%B0/%0A"></a></div><div class="share-btn mastodon"><a class="fab fa-mastodon" target="_blank" rel="noopener" href="https://mastodonshare.com/?text=Share%0A%0ALesley's%20Blog%20%C2%B7%20OS%E7%AC%94%E8%AE%B0%0Ahttp://example.com/2026/02/14/OS%E7%AC%94%E8%AE%B0/%0A"></a></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/2026/02/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9B%B8%E5%85%B3%E7%AE%97%E6%B3%95/" title="数据结构相关算法">Post Anterior</a></li><li class="next pagbuttons"><a class="btn" role="navigation" href="/2026/01/19/Pin%E5%AF%B9ELF-%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9A%84%E6%8A%BD%E8%B1%A1%E6%A8%A1%E5%9E%8B/" title="Pin对ELF/二进制的抽象模型">Próximo post</a></li></ul></div><script>Anatolo.comment.setConfig({"valine":{"enable":false,"appid":null,"appkey":null,"notify":false,"verify":false,"avatar":"mm","placeholder":"hello, world"},"gitment":{"enable":false,"owner":"Your GitHub ID","repo":"Repo to store comments","client_id":"Your client ID","client_secret":"Your client secret"},"gitalk":{"enable":false,"owner":"Your GitHub ID","repo":"Repo to store comments","client_id":"Your client ID","client_secret":"Your client secret"},"duoshuo":null,"disqus":null,"gentie":null})</script></div></div></div></div></main-outlet><script>(async function(){ if (Anatolo.search == null) await Anatolo.getMsg("search-init"); Anatolo.search.config = {translation:{posts:"Posts",pages:"Pages",categories:"Categories",tags:"Tags",untitled:"(Untitled)",} }; })()</script><div class="searchbox ins-search modal-cover"><div class="searchbox-container ins-search-container modal-container"><div class="searchbox-input-wrapper"><input class="searchbox-input ins-search-input" type="text" placeholder="Search..."><span class="searchbox-close"><a class="fa fa-times-circle" onclick="Anatolo.search.closeWindow();"></a></span></div><div class="searchbox-result-wrapper ins-section-wrapper"><div class="ins-section-container"><p>Seraching...</p></div></div></div></div><button class="float-button hide" id="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" type="button" title="Scroll to top"><i class="fa fa-angle-up"></i></button><div class="modal-cover" id="success-indicator"><div class="modal-container indicator"><i class="fa fa-check"></i></div></div></body></html>
